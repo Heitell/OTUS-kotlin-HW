@@ -1,22 +1,71 @@
 
 
 fun main() {
-    people.groupBy { it.age }.forEach { (t, u) -> println(u.size) }
+    post {
+        url("https://example.com/api")
+        header(mapOf("Content type" to "application/json", "Authorization" to "Bearer token"))
+        body("{\"name\": \"John\", \"age\": 30}")
+    }.also { println(it) }
 
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-        .split(' ', '.', ',')
-        .filter { it.startsWith('a') }
-        .groupBy { it.length }
-        .also { println(it.entries) }
+    get {
+        url("https://example.com/api")
+        header(mapOf("Content type" to "application/json", "Authorization" to "Bearer token"))
+        body("{\"name\": \"John\", \"age\": 30}")
+    }.also { println(it) }
+
+    put {
+        url("https://example.com/api")
+        header(mapOf("Content type" to "application/json", "Authorization" to "Bearer token"))
+        body("{\"name\": \"John\", \"age\": 30}")
+    }.also { println(it) }
+
+    delete {
+        url("https://example.com/api")
+        header(mapOf("Content type" to "application/json", "Authorization" to "Bearer token"))
+        body("{\"name\": \"John\", \"age\": 30}")
+    }.also { println(it) }
 }
 
-data class Person(val name: String, val age: Int)
-val people = listOf(
-    Person("Петя", 25),
-    Person("Вася", 30),
-    Person("Даша", 25),
-    Person("Женя", 30),
-    Person("Алексей", 20)
+data class HttpRequest(
+    val method: String,
+    val url: String,
+    val headers: Map<String, String>,
+    val body: String?
 )
+
+class RequestBuilder{
+
+    private var url: String? = null
+    private var headers: Map<String, String>? = null
+    private var body: String? = null
+    fun url(url: String) = apply{ this.url = url }
+    fun header(headers: Map<String, String>) = apply{ this.headers = headers }
+
+    fun body(body: String) = apply{ this.body = body }
+    fun build(method: String) : HttpRequest {
+        return HttpRequest(
+            method = method,
+            url = this.url!!,
+            headers = this.headers!!,
+            body = this.body
+        )
+    }
+}
+
+fun post(initializer: RequestBuilder.() -> Unit) : HttpRequest {
+    return RequestBuilder().apply(initializer).build("POST")
+}
+
+fun get(initializer: RequestBuilder.() -> Unit) : HttpRequest {
+    return RequestBuilder().apply(initializer).build("GET")
+}
+
+fun put(initializer: RequestBuilder.() -> Unit) : HttpRequest {
+    return RequestBuilder().apply(initializer).build("PUT")
+}
+
+fun delete(initializer: RequestBuilder.() -> Unit) : HttpRequest {
+    return RequestBuilder().apply(initializer).build("DELETE")
+}
 
 
